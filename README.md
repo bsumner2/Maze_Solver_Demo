@@ -1,6 +1,7 @@
-# A Wordle Clone or the GBA!
+# A Simple Maze Generator and Maze Solver
 
-## Special Thanks To Arjun Vikram
-
-Thanks for the plaintext files with Wordle's word and answers DB!
-I snagged them from his prepo on dagshub](https://dagshub.com/arjvik/wordle-wordlist).
+Generates and solves maze using Wilson's Algorithm and Dijkstra's Algorithm
+respectively. It didn't necessarily have to be made for the GBA, but I
+figured it would be easier than setting up the graphics pipeline for 
+the GBA than having to use SDL2. Besides, it comes with the added benefit
+of being a challenge to create.
