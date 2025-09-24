@@ -5,6 +5,9 @@
 ifeq '$(PROJ_NAME)' ''
 	PROJ_NAME=$(shell pwd | sed 's-[a-zA-Z/]*/--g')
 endif
+ifeq '$(IP)' ''
+	IP=$(shell ip route show | grep -i default | awk '{ print $$3 }')
+endif
 
 #-------------------------------Project Files and Dirs-----------------------------------------------------
 
@@ -34,17 +37,18 @@ CXX=$(PREFIX)g++
 LD=$(PREFIX)g++
 AS=$(PREFIX)gcc
 OBJ_CPY=$(PREFIX)objcopy
+MGBA="/mnt/c/Program Files/mGBA/mGBA.exe"
 
 ARCH=-mthumb-interwork -mthumb
 IARCH=-mthumb-interwork -marm
 SPECS=-specs=gba.specs
 
-CFLAGS_BASE=-g -Wall -Wextra -fno-strict-aliasing -I$(INC) -D_DEBUG_BUILD_ $(MACROS) -I$(LIBINC)
+CFLAGS_BASE=-g -Wall -Wextra -fno-strict-aliasing -I$(INC) -D_DEBUG_BUILD_ $(MACROS)
 
 ROM_CFLAGS=$(CFLAGS_BASE) $(ARCH)
 IWRAM_CFLAGS=$(CFLAGS_BASE) $(IARCH) -mlong-calls
 
-LDFLAGS=$(ARCH) $(SPECS) -g -L$(LIB) $(LIBBSTREE)
+LDFLAGS=$(ARCH) $(SPECS) -g
 ASFLAGS=-g -xassembler-with-cpp -I$(INC)
 
 .PHONY: build clean
@@ -54,8 +58,8 @@ ASFLAGS=-g -xassembler-with-cpp -I$(INC)
 .SILENT:
 
 test: clean build
-	nohup mgba-qt -g $(BIN)/$(TARGET).elf & &> /dev/null
-	arm-none-eabi-gdb $(BIN)/$(TARGET).elf
+	nohup $(MGBA) -g $(BIN)/$(TARGET).elf & &> /dev/null
+	arm-none-eabi-gdb $(BIN)/$(TARGET).elf -ex "target remote $(IP):2345"
 
 test_new_save: clean_saves test
 

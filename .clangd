@@ -1,6 +1,6 @@
 ---
 CompileFlags:
-  Add: [ -xc, -Wall, -Wextra, -DUSE_BIOS_VSYNC, -Wno-empty-translation-unit,  -pedantic, -I../include, -I../lib/include, -I/opt/devkitpro/devkitARM/arm-none-eabi/include ]
+  Add: [ -xc, -Wall, -Wextra, -DUSE_BIOS_VSYNC, -Wno-empty-translation-unit,  -pedantic, -I../include, -I../lib/include, -I/opt/devkitpro/devkitARM/arm-none-eabi/include, -D_DEBUG_LOG_TO_SAVEFILE_ ]
   Compiler: arm-none-eabi-gcc
 ---
 If:

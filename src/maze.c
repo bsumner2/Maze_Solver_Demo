@@ -8,6 +8,11 @@
 #include "gba_funcs.h"
 #include "gba_mmap.h"
 #include "mode3_io.h"
+
+#ifdef _DEBUG_LOG_TO_SAVEFILE_
+#include "sav_debug_log.h"
+#endif
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -180,14 +185,17 @@ STAT_INLN bool coords_eq(Coord_t a, Coord_t b) {
 }
 
 static int coord_bst_cmpcb(const void *a, const void *b) {
-  return Coord_Cmp(*(Coord_t*)a, *(Coord_t*)b);
+  return Coord_Cmp(*(const Coord_t*)a, *(const Coord_t*)b);
 }
 
 void Walk_Init(Walk_t *walk, Coord_t start_coord) {
   walk->start = start_coord;
   walk->path = LL_INIT(Mvmt);
-  walk->path_coord_set = BinaryTree_Create(malloc, free, NULL, NULL, coord_bst_cmpcb, sizeof(Coord_t));
-  BinaryTree_Insert(walk->path_coord_set, &start_coord);
+  walk->path_coord_set = BinaryTree_Create(malloc, free, NULL, NULL, coord_bst_cmpcb, sizeof(Coord_t), NULL);
+#ifdef _DEBUG_LOG_TO_SAVEFILE_
+  debug_log_printf("Starting new random walk at init position (%d, %d)\n", start_coord.x, start_coord.y);
+#endif
+  assert(BinaryTree_Insert(walk->path_coord_set, &start_coord));
 }
 
 void Walk_Close(Walk_t *walk) {
@@ -270,14 +278,23 @@ bool Walk_Advance(Walk_t *walk, Direction_e dir, int grid_width, int grid_height
 #ifdef _DEBUG_LOG_TO_SAVEFILE_
   debug_log_printf("Tree contains: (%d, %d)\n", dst.x, dst.y);
   debug_log_printf("Tree element ct: %u\n", BinaryTree_Element_Count(walk->path_coord_set));
+  debug_log_printf("Path LL element ct: %u\n", path->nmemb);
     BinaryTree_Inorder(walk->path_coord_set, debug_print__coordtree_traversal_cb);
+    {
+      Coord_t c;
+      int idx = 0;
+      LL_FOREACH(LL_NODE_VAR_INITIALIZER(Mvmt, cur), cur, path) {
+        c = cur->data.dest;
+        debug_log_printf("path[%d] = (%d, %d)\n", idx++, c.x, c.y);
+      }
+    }
 #endif  /* DEBUG LOGS TO .SAV FILE */
     while (path->nmemb!=0UL) {
       head = Mvmt_LL_Peak(path);
       if (coords_eq(head.dest, dst))
         break;
       Mvmt_LL_Pop(path, &head);
-      assert(BinaryTree_Remove(walk->path_coord_set, &head.dest)==1);
+      assert(BinaryTree_Remove(walk->path_coord_set, &head.dest));
 #ifdef _DRAW_WALK_
       r.x = head.dest.x*r.width;
       r.y = head.dest.y*r.height;
@@ -285,7 +302,6 @@ bool Walk_Advance(Walk_t *walk, Direction_e dir, int grid_width, int grid_height
       mode3_draw_rect(&r);
 #endif
     }
-    Coord_t *rootcoord = BinaryTree_Get_Root(walk->path_coord_set)->data;
     assert((path->nmemb!=0UL) || 
         (BinaryTree_Element_Count(walk->path_coord_set)==1 &&
           coords_eq(walk->start, dst) &&
@@ -751,7 +767,7 @@ GraphNode_t **Dijkstras(Graph_t *graph, u32 src, u32 dst) {
   if (dst < 0 || dst >= graph->vertex_ct)
     return NULL;
 
-  BinaryTree_t *unvisited = BinaryTree_Create(malloc, free, NULL, NULL, dve_cmp, sizeof(DijkstraVertent_t));
+  BinaryTree_t *unvisited = BinaryTree_Create(malloc, free, NULL, NULL, dve_cmp, sizeof(DijkstraVertent_t), NULL);
   assert(NULL!=unvisited);
 
   {

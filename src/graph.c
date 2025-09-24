@@ -25,7 +25,7 @@ Graph_t *Graph_Init(Data_Initializer_cb initializer, Data_Uninitializer_cb unini
   ret->vertices = NULL;
   ret->data_initer = initializer;
   ret->data_uniniter = uninitializer;
-  ret->vertex_data_map = BinaryTree_Create(malloc, free, NULL, NULL, vertex_data_cmp_cb, vertex_data_size+sizeof(void*));
+  ret->vertex_data_map = BinaryTree_Create(malloc, free, NULL, NULL, vertex_data_cmp_cb, vertex_data_size+sizeof(void*), NULL);
   ret->vertex_data_size = vertex_data_size;
   return ret;
 }

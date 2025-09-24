@@ -34,17 +34,18 @@ CXX=$(PREFIX)g++
 LD=$(PREFIX)g++
 AS=$(PREFIX)gcc
 OBJ_CPY=$(PREFIX)objcopy
+MGBA="/mnt/c/Program Files/mGBA/mGBA.exe"
 
 ARCH=-mthumb-interwork -mthumb
 IARCH=-mthumb-interwork -marm
 SPECS=-specs=gba.specs
 
-CFLAGS_BASE=-O3 -Wall -Wextra -fno-strict-aliasing -I$(INC) $(MACROS) -I$(LIB_INC)
+CFLAGS_BASE=-O3 -Wall -Wextra -fno-strict-aliasing -I$(INC) $(MACROS)
 
 ROM_CFLAGS=$(CFLAGS_BASE) $(ARCH)
 IWRAM_CFLAGS=$(CFLAGS_BASE) $(IARCH) -mlong-calls
 
-LDFLAGS=$(ARCH) $(SPECS) -L$(LIBS) $(LIBBST)
+LDFLAGS=$(ARCH) $(SPECS)
 ASFLAGS=-xassembler-with-cpp -I$(INC)
 
 .PHONY: build clean
@@ -55,7 +56,7 @@ ASFLAGS=-xassembler-with-cpp -I$(INC)
 
 test: clean build
 	@echo "Macros: $(MACROS)"
-	mgba-qt $(BIN)/$(TARGET).gba
+	$(MGBA) $(BIN)/$(TARGET).gba
 
 test_new_save: clean_saves test
 
