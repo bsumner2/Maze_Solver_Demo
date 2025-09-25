@@ -436,7 +436,7 @@ void draw_maze_cell(u8 *grid, const Coord_t *coord, int grid_width, int grid_hei
 
 
 
-void Incorporate_Walk(u8 *grid, Walk_t *walk, int grid_width, int grid_height) {
+void Incorporate_Walk(u8 *grid, Walk_t *walk, int grid_width) {
   Mvmt_LL_t *path = &(walk->path);
   Mvmt_t curmove;
   assert(Mvmt_LL_Pop(path, &curmove));
@@ -536,7 +536,7 @@ void Wilsons_Algo(u8 *grid, int grid_width, int grid_height) {
   do {
     Walk(&walk, grid, grid_width, grid_height);
     initialized_ct += walk.path.nmemb;
-    Incorporate_Walk(grid, &walk, grid_width, grid_height);
+    Incorporate_Walk(grid, &walk, grid_width);
     BinaryTree_Inorder(walk.path_coord_set, walk_traversal_draw_cb);
     
  
@@ -876,7 +876,8 @@ int main(void) {
 //  srand(0x27D9440EUL);
 //  srand(0xE573C496UL);
 //  srand(0x7612FB02UL);
-  srand(0xA739BD0AUL);
+//  srand(0xA739BD0AUL);
+  srand(0x4DA23792UL);
 #endif
 #ifdef _DEBUG_LOG_TO_SAVEFILE_
   debug_log_initialize();
